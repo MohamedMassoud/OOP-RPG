@@ -2,22 +2,27 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Player : MonoBehaviour
+public abstract class Player : MonoBehaviour
 {
 
     public float speed = 3f;
-    private Animator playerAnimator;
+    protected Animator playerAnimator;
     public float xInput;
     public float zInput;
     public Vector3 direction;
     public float angle = 90f;
-    public Vector3 cameraOffset = new Vector3(3f, 3f, -3f);
     public float attackDamage = 10f;
-    
+    [Header("Animation Names")]
+    public string runAnimationName;
+    public string attack1AnimationName;
+    public string attack2AnimationName;
+    public string skillAnimationName;
+
 
     void Start()
     {
         playerAnimator = GetComponent<Animator>();
+        InitAnimationNames();
     }
 
     void Update()
@@ -25,12 +30,14 @@ public class Player : MonoBehaviour
         TickMovement();
         TickRotation();
         BasicAttack();
+        Skill();
     }
 
     private void FixedUpdate()
     {
         Move();
         Rotate();
+
     }
 
     protected void TickMovement()
@@ -58,27 +65,41 @@ public class Player : MonoBehaviour
 
     protected void Move()
     {
+        Debug.Log(attack1AnimationName);
+        if (IsAnimationPlaying(attack1AnimationName) || IsAnimationPlaying(attack2AnimationName) || IsAnimationPlaying(skillAnimationName)) return;
         transform.Translate(direction * speed * Time.fixedDeltaTime, Space.World);
     }
 
     protected void Rotate()
     {
+        if (IsAnimationPlaying(attack1AnimationName) || IsAnimationPlaying(attack2AnimationName) || IsAnimationPlaying(skillAnimationName)) return;
         transform.rotation = Quaternion.Euler(0f, angle, 0f);
     }
 
-    protected void BasicAttack()
+    protected virtual void BasicAttack()
     {
+        if (IsAnimationPlaying(attack2AnimationName)) return;
         if (Input.GetMouseButtonDown(0))
         {
-            playerAnimator.SetTrigger("Attack");
+            if (!IsAnimationPlaying(attack1AnimationName))
+            {
+                playerAnimator.SetTrigger("Attack");
+            }
+            else
+            {
+                playerAnimator.SetTrigger("Attack2");
+            }
         }
     }
 
-    protected virtual void Skill()
-    {
+    protected abstract void Skill();
 
+
+    protected bool IsAnimationPlaying(string animationName)
+    {
+        return playerAnimator.GetCurrentAnimatorStateInfo(0).IsName(animationName);
     }
 
-
+    protected abstract void InitAnimationNames();
 
 }
