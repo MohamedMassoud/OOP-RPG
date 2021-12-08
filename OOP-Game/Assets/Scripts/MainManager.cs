@@ -12,6 +12,7 @@ public class MainManager : MonoBehaviour
     
     public bool gameStarted = false;
     public TMP_InputField playerNameText;
+    public static string playerClass = "Warrior";
 
 
     private void Awake()

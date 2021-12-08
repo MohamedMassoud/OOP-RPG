@@ -13,21 +13,19 @@ public class Warrior : Player
         skillAnimationName = "Ekard_Skill_01_h";
     }
 
-    protected override void Skill()
+
+    public void EnableAttackCollider()      //Called by the animation
     {
-        if (Input.GetMouseButtonDown(1))
-        {
-            playerAnimator.SetTrigger("Skill");
-        }
+        swordCollider.enabled = true;
     }
 
-    public void EnableAttackCollider()
+    public void DisableAttackCollide()      //Called by the animation
     {
-
+        swordCollider.enabled = false;
     }
 
-    public void DisableAttackCollide()
+    public override string GetPlayerClass()
     {
-
+        return "Warrior";
     }
 }

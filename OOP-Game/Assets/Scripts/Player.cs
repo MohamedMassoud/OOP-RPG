@@ -11,12 +11,29 @@ public abstract class Player : MonoBehaviour
     public float zInput;
     public Vector3 direction;
     public float angle = 90f;
-    public float attackDamage = 10f;
     [Header("Animation Names")]
     public string runAnimationName;
     public string attack1AnimationName;
     public string attack2AnimationName;
     public string skillAnimationName;
+    private int basicAttackDamage1 = 10;
+    private int basicAttackDamage2 = 20;
+    public int currentBasicAttackDamage {
+        get
+        {
+            if (IsAnimationPlaying(attack1AnimationName))
+            {
+                return basicAttackDamage1;
+            }else if (IsAnimationPlaying(attack2AnimationName))
+            {
+                return basicAttackDamage2;
+            }
+            else
+            {
+                return 0;
+            }
+        }
+    }
 
 
     void Start()
@@ -29,15 +46,14 @@ public abstract class Player : MonoBehaviour
     {
         TickMovement();
         TickRotation();
-        BasicAttack();
-        Skill();
+        StartBasicAttackAnimation();
+        StartSkillAnimation();
     }
 
     private void FixedUpdate()
     {
         Move();
         Rotate();
-
     }
 
     protected void TickMovement()
@@ -65,7 +81,6 @@ public abstract class Player : MonoBehaviour
 
     protected void Move()
     {
-        Debug.Log(attack1AnimationName);
         if (IsAnimationPlaying(attack1AnimationName) || IsAnimationPlaying(attack2AnimationName) || IsAnimationPlaying(skillAnimationName)) return;
         transform.Translate(direction * speed * Time.fixedDeltaTime, Space.World);
     }
@@ -76,7 +91,7 @@ public abstract class Player : MonoBehaviour
         transform.rotation = Quaternion.Euler(0f, angle, 0f);
     }
 
-    protected virtual void BasicAttack()
+    protected virtual void StartBasicAttackAnimation()
     {
         if (IsAnimationPlaying(attack2AnimationName)) return;
         if (Input.GetMouseButtonDown(0))
@@ -92,7 +107,13 @@ public abstract class Player : MonoBehaviour
         }
     }
 
-    protected abstract void Skill();
+    protected virtual void StartSkillAnimation()
+    {
+        if (Input.GetMouseButtonDown(1))
+        {
+            playerAnimator.SetTrigger("Skill");
+        }
+    }
 
 
     protected bool IsAnimationPlaying(string animationName)
@@ -102,4 +123,7 @@ public abstract class Player : MonoBehaviour
 
     protected abstract void InitAnimationNames();
 
+
+
+    public abstract string GetPlayerClass();
 }
