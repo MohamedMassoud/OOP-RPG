@@ -8,10 +8,12 @@ public class Enemy : MonoBehaviour
     protected int health = 100;
     public float movementSpeed;
     private Warrior warriorScript;
-    protected bool followPlayer = false;
+    [SerializeField] protected bool followPlayer = false;
     protected Vector3 dir;
     protected Animator enemyAnimator;
-
+    protected bool attackMode = false;
+    protected float attackRange = 1f;
+    protected Coroutine attackStanceCoroutine;
 
     // Start is called before the first frame update
     void Start()
@@ -32,7 +34,7 @@ public class Enemy : MonoBehaviour
     private void OnTriggerEnter(Collider collision)
     {
 
-        if(collision is CapsuleCollider)            //Mobs Trigger Collider
+        if(collision is SphereCollider)            //Mobs Trigger Collider
         {
             Debug.Log("Ima Follow The Player :*");
             TriggeredByPlayer(true);
@@ -48,10 +50,20 @@ public class Enemy : MonoBehaviour
         
     }
 
+    private void OnTriggerExit(Collider other)
+    {
+        if (other is SphereCollider)            //Mobs Trigger Collider
+        {
+            Debug.Log("Ima Leave The Player :*");
+            TriggeredByPlayer(false);
+        }
+    }
+
+
     protected void TakeDamage(int damage)
     {
         health -= damage;
-        enemyAnimator.SetInteger("moving", 13);
+        enemyAnimator.SetTrigger("hit");
         if(health <=0)
         {
             Die();
@@ -60,8 +72,9 @@ public class Enemy : MonoBehaviour
 
     protected void Die()
     {
-        enemyAnimator.SetInteger("moving", 9);
+        enemyAnimator.SetBool("dead", true);
         followPlayer = false;
+        transform.GetComponent<BoxCollider>().enabled = false;
     }
     public void TriggeredByPlayer(bool isTriggeredByPlayer)
     {
@@ -73,18 +86,58 @@ public class Enemy : MonoBehaviour
     protected void FollowPlayer()
     {
         Vector3 playerPos = warriorScript.gameObject.transform.position;
-        if (!followPlayer || (playerPos - transform.position).magnitude < 1)
+        Vector3 distanceBetweenPlayerAndMob = playerPos - transform.position;
+        if (distanceBetweenPlayerAndMob.magnitude < attackRange)
         {
-            enemyAnimator.SetInteger("moving", 0);
-            return;
+            if (!attackMode)
+            {
+                Debug.Log("Huh?");
+                attackMode = true;
+                attackStanceCoroutine = StartCoroutine(AttackStance());
+            }
+            
         }
-        transform.position = Vector3.MoveTowards(transform.position, playerPos, movementSpeed * Time.fixedDeltaTime);
-        enemyAnimator.SetInteger("moving", 1);
-        transform.LookAt(playerPos, transform.up);
+        else {
+            attackMode = false;
+            enemyAnimator.SetInteger("battle", 0);
+            if(attackStanceCoroutine!=null)StopCoroutine(attackStanceCoroutine);
+            if (!followPlayer)
+            {
+                enemyAnimator.SetBool("walking", false);
+                return;
+            }
+            else if(!enemyAnimator.GetCurrentAnimatorStateInfo(0).IsName("attack 3"))
+            {
+                transform.position = Vector3.MoveTowards(transform.position, playerPos, movementSpeed * Time.fixedDeltaTime);
+                enemyAnimator.SetBool("walking", true);
+                transform.LookAt(playerPos, transform.up);
+            }
+        } 
     }
+
+
 
     protected void Attack()
     {
+        enemyAnimator.SetInteger("battle", 1);
+        enemyAnimator.SetTrigger("attack");
 
     }
+
+    protected IEnumerator AttackStance()
+    {
+        while (attackMode)
+        {
+            enemyAnimator.SetBool("walking", false);
+            yield return 0;
+            Attack();
+            yield return 0;
+            enemyAnimator.SetBool("walking", false);
+            yield return new WaitForSeconds(5);
+        }
+        
+        
+    }
+
+    
 }
