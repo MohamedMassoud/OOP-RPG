@@ -2,29 +2,21 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public abstract class Player : MonoBehaviour
+public abstract class Player : MonoBehaviour, Attackable
 {
-
-    public float speed = 3f;
-    protected Animator playerAnimator;
-    public float xInput;
-    public float zInput;
-    public Vector3 direction;
-    public float angle = 90f;
-    [Header("Animation Names")]
-    public string runAnimationName;
-    public string attack1AnimationName;
-    public string attack2AnimationName;
-    public string skillAnimationName;
-    private int basicAttackDamage1 = 10;
-    private int basicAttackDamage2 = 20;
-    public int currentBasicAttackDamage {
+    [Header("Player Properties")]
+    [SerializeField] private float speed = 3f;
+    [SerializeField] private int basicAttackDamage1 = 10;
+    [SerializeField] private int basicAttackDamage2 = 20;
+    public int currentBasicAttackDamage
+    {
         get
         {
             if (IsAnimationPlaying(attack1AnimationName))
             {
                 return basicAttackDamage1;
-            }else if (IsAnimationPlaying(attack2AnimationName))
+            }
+            else if (IsAnimationPlaying(attack2AnimationName))
             {
                 return basicAttackDamage2;
             }
@@ -34,11 +26,41 @@ public abstract class Player : MonoBehaviour
             }
         }
     }
+    [SerializeField] private int health = 100;
+
+    [Header("Animation Names")]
+    [SerializeField] protected string runAnimationName;
+    [SerializeField] protected string attack1AnimationName;
+    [SerializeField] protected string attack2AnimationName;
+    [SerializeField] protected string skillAnimationName;
+
+    [Header("Sounds")]
+
+    [SerializeField] protected AudioClip attack1AirSound;
+    [SerializeField] protected AudioClip attack2AirSound;
+    [SerializeField] public AudioClip attack1Sound;
+    [SerializeField] public AudioClip attack2Sound;
+    [SerializeField] protected AudioClip skillSound;
+
+    [Header("MISC")]
+    private AudioSource audioSource;
+
+    private Animator playerAnimator;
+    private float xInput;
+    private float zInput;
+    private Vector3 direction;
+    private float angle = 90f;
+
+
+    private SkinnedMeshRenderer skinnedMeshRenderer;
+    
 
 
     void Start()
     {
         playerAnimator = GetComponent<Animator>();
+        skinnedMeshRenderer = GetComponentInChildren<SkinnedMeshRenderer>();
+        audioSource = GetComponent<AudioSource>();
         InitAnimationNames();
     }
 
@@ -46,8 +68,8 @@ public abstract class Player : MonoBehaviour
     {
         TickMovement();
         TickRotation();
-        StartBasicAttackAnimation();
-        StartSkillAnimation();
+        StartBasicAttackAnimationAndSound();
+        StartSkillAnimationAndSound();
     }
 
     private void FixedUpdate()
@@ -55,6 +77,7 @@ public abstract class Player : MonoBehaviour
         Move();
         Rotate();
     }
+
 
     protected void TickMovement()
     {
@@ -91,7 +114,7 @@ public abstract class Player : MonoBehaviour
         transform.rotation = Quaternion.Euler(0f, angle, 0f);
     }
 
-    protected virtual void StartBasicAttackAnimation()
+    protected virtual void StartBasicAttackAnimationAndSound()
     {
         if (IsAnimationPlaying(attack2AnimationName)) return;
         if (Input.GetMouseButtonDown(0))
@@ -107,11 +130,12 @@ public abstract class Player : MonoBehaviour
         }
     }
 
-    protected virtual void StartSkillAnimation()
+    protected virtual void StartSkillAnimationAndSound()
     {
         if (Input.GetMouseButtonDown(1))
         {
             playerAnimator.SetTrigger("Skill");
+            audioSource.PlayOneShot(skillSound);
         }
     }
 
@@ -123,7 +147,64 @@ public abstract class Player : MonoBehaviour
 
     protected abstract void InitAnimationNames();
 
-
-
     public abstract string GetPlayerClass();
+
+    public void TakeDamage(int damage)
+    {
+        health -= damage;
+        StartCoroutine(PlayHitAnimation());
+        if (health <= 0)
+        {
+            Die();
+
+        }
+
+    }
+    public void Die()
+    {
+        Debug.Log("Player Has Died");
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other is BoxCollider)          //Sword Trigger Collider
+        {
+            if (other.gameObject.CompareTag("Melee_Weapon_Enemy"))
+            {
+                Debug.Log("Hit By Enemy" + " " + other.gameObject.name);
+                Enemy enemy = other.transform.root.gameObject.GetComponent<Enemy>() as Enemy;
+                TakeDamage(enemy.currentBasicAttackDamage);
+            }
+        }
+    }
+
+    protected IEnumerator PlayHitAnimation()
+    {
+        Debug.Log("HEREREERE");
+        skinnedMeshRenderer.material.color = Color.red;
+        yield return new WaitForSeconds(0.1f);
+        skinnedMeshRenderer.material.color = Color.white;
+    }
+
+    public void PlayHitAirSound()
+    {
+        if (IsAnimationPlaying(attack1AnimationName))
+        {
+            audioSource.PlayOneShot(attack1AirSound);
+        }
+        else if (IsAnimationPlaying(attack2AnimationName))
+        {
+            audioSource.PlayOneShot(attack2AirSound);
+        }
+    }
+    public void PlayHitSound()
+    {
+        if (IsAnimationPlaying(attack1AnimationName))
+        {
+            audioSource.PlayOneShot(attack1Sound);
+        }else if (IsAnimationPlaying(attack2AnimationName))
+        {
+            audioSource.PlayOneShot(attack2Sound);
+        }
+    }
 }

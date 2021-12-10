@@ -6,6 +6,8 @@ TagManager:
   tags:
   - Enemy
   - Sword
+  - Melee_Weapon_Enemy
+  - Melee_Weapon_Player
   layers:
   - Default
   - TransparentFX
@@ -13,8 +15,8 @@ TagManager:
   - 
   - Water
   - UI
-  - 
-  - 
+  - TriggerArea
+  - Weapon
   - 
   - 
   - 

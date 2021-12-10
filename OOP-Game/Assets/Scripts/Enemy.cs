@@ -2,33 +2,42 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Enemy : MonoBehaviour
+public class Enemy : MonoBehaviour, Attackable
 {
+    [Header("Enemy Properties")]
+    [SerializeField] private int health = 100;
+    [SerializeField] private float movementSpeed;
+    public int currentBasicAttackDamage = 10;
 
-    protected int health = 100;
-    public float movementSpeed;
-    private Warrior warriorScript;
-    [SerializeField] protected bool followPlayer = false;
-    protected Vector3 dir;
-    protected Animator enemyAnimator;
-    protected bool attackMode = false;
-    protected float attackRange = 1f;
-    protected Coroutine attackStanceCoroutine;
+    [Header("MISC")]
+    [SerializeField] protected BoxCollider weaponCollider;
+    [SerializeField] private float attackRange = 1f;
+
+    private Player playerScript;
+    private bool followPlayer = false;
+    private Animator enemyAnimator;
+    private bool attackMode = false;
+    
+    private Coroutine attackStanceCoroutine;
+    private Vector3 playerPos;
+    private Vector3 distanceBetweenPlayerAndMob;
+    
+    
 
     // Start is called before the first frame update
     void Start()
     {
         enemyAnimator = GetComponent<Animator>();
-        warriorScript = GameObject.Find("Warrior").GetComponent<Warrior>();
-        Debug.Log(warriorScript);
+        playerScript = GameObject.FindObjectOfType<Player>().GetComponent<Player>();
     }
 
 
 
     private void FixedUpdate()
     {
+        UpdatePlayerEnemyDistanceInfo();
+        UpdateStance();
         FollowPlayer();
-        
     }
 
     private void OnTriggerEnter(Collider collision)
@@ -41,10 +50,11 @@ public class Enemy : MonoBehaviour
         }
         else if(collision is BoxCollider)          //Sword Trigger Collider
         {
-            if (collision.gameObject.CompareTag("Sword"))
+            if (collision.gameObject.CompareTag("Melee_Weapon_Player"))
             {
                 Debug.Log("Hit By Sword");
-                TakeDamage(warriorScript.currentBasicAttackDamage);
+                TakeDamage(playerScript.currentBasicAttackDamage);
+                playerScript.PlayHitSound();
             }
         }
         
@@ -60,8 +70,9 @@ public class Enemy : MonoBehaviour
     }
 
 
-    protected void TakeDamage(int damage)
+    public void TakeDamage(int damage)
     {
+        weaponCollider.enabled = false;
         health -= damage;
         enemyAnimator.SetTrigger("hit");
         if(health <=0)
@@ -70,52 +81,71 @@ public class Enemy : MonoBehaviour
         }
     }
 
-    protected void Die()
+    public void Die()
     {
         enemyAnimator.SetBool("dead", true);
         followPlayer = false;
-        transform.GetComponent<BoxCollider>().enabled = false;
+        transform.GetComponent<CapsuleCollider>().enabled = false;
     }
+
     public void TriggeredByPlayer(bool isTriggeredByPlayer)
     {
         followPlayer = isTriggeredByPlayer;
     }
 
-
+    protected void UpdatePlayerEnemyDistanceInfo()
+    {
+        playerPos = playerScript.gameObject.transform.position;
+        distanceBetweenPlayerAndMob = playerPos - transform.position;
+    }
 
     protected void FollowPlayer()
     {
-        Vector3 playerPos = warriorScript.gameObject.transform.position;
-        Vector3 distanceBetweenPlayerAndMob = playerPos - transform.position;
-        if (distanceBetweenPlayerAndMob.magnitude < attackRange)
+        if(!IsAttacking() && followPlayer)
+        {
+
+            if (!attackMode)
+            {
+                transform.position = Vector3.MoveTowards(transform.position, playerPos, movementSpeed * Time.fixedDeltaTime);
+                enemyAnimator.SetBool("walking", true);
+            }
+            
+            transform.LookAt(playerPos, transform.up);
+        }
+    }
+
+    protected void UpdateStance()
+    {
+        if (IsPlayerInRange())
         {
             if (!attackMode)
             {
-                Debug.Log("Huh?");
                 attackMode = true;
                 attackStanceCoroutine = StartCoroutine(AttackStance());
             }
-            
         }
-        else {
+        else
+        {
             attackMode = false;
             enemyAnimator.SetInteger("battle", 0);
-            if(attackStanceCoroutine!=null)StopCoroutine(attackStanceCoroutine);
+            if (attackStanceCoroutine != null) StopCoroutine(attackStanceCoroutine);
             if (!followPlayer)
             {
                 enemyAnimator.SetBool("walking", false);
                 return;
             }
-            else if(!enemyAnimator.GetCurrentAnimatorStateInfo(0).IsName("attack 3"))
-            {
-                transform.position = Vector3.MoveTowards(transform.position, playerPos, movementSpeed * Time.fixedDeltaTime);
-                enemyAnimator.SetBool("walking", true);
-                transform.LookAt(playerPos, transform.up);
-            }
-        } 
+        }
     }
 
+    protected bool IsPlayerInRange()
+    {
+        return distanceBetweenPlayerAndMob.magnitude < attackRange;
+    }
 
+    protected bool IsAttacking()
+    {
+        return enemyAnimator.GetCurrentAnimatorStateInfo(0).IsName("attack 3");
+    }
 
     protected void Attack()
     {
@@ -135,9 +165,5 @@ public class Enemy : MonoBehaviour
             enemyAnimator.SetBool("walking", false);
             yield return new WaitForSeconds(5);
         }
-        
-        
     }
-
-    
 }
