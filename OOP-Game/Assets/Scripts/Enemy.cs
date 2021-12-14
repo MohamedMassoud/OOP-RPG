@@ -2,16 +2,15 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Enemy : MonoBehaviour, Attackable
+public class Enemy : Creature
 {
     [Header("Enemy Properties")]
-    [SerializeField] private int health = 100;
-    [SerializeField] private float movementSpeed;
     public int currentBasicAttackDamage = 10;
 
     [Header("MISC")]
     [SerializeField] protected BoxCollider weaponCollider;
     [SerializeField] private float attackRange = 1f;
+    
 
     private Player playerScript;
     private bool followPlayer = false;
@@ -21,14 +20,15 @@ public class Enemy : MonoBehaviour, Attackable
     private Coroutine attackStanceCoroutine;
     private Vector3 playerPos;
     private Vector3 distanceBetweenPlayerAndMob;
-    
-    
+
+
 
     // Start is called before the first frame update
     void Start()
     {
         enemyAnimator = GetComponent<Animator>();
         playerScript = GameObject.FindObjectOfType<Player>().GetComponent<Player>();
+        CreateHealthBar();
     }
 
 
@@ -42,46 +42,38 @@ public class Enemy : MonoBehaviour, Attackable
 
     private void OnTriggerEnter(Collider collision)
     {
-
         if(collision is SphereCollider)            //Mobs Trigger Collider
         {
-            Debug.Log("Ima Follow The Player :*");
             TriggeredByPlayer(true);
         }
         else if(collision is BoxCollider)          //Sword Trigger Collider
         {
             if (collision.gameObject.CompareTag("Melee_Weapon_Player"))
             {
-                Debug.Log("Hit By Sword");
                 TakeDamage(playerScript.currentBasicAttackDamage);
                 playerScript.PlayHitSound();
+            }else if (collision.gameObject.CompareTag("Spell_Player"))
+            {
+                Spell spell = collision.gameObject.GetComponent<Spell>();
+                TakeDamage(spell.spellDamage);
             }
         }
         
     }
 
+
     private void OnTriggerExit(Collider other)
     {
         if (other is SphereCollider)            //Mobs Trigger Collider
         {
-            Debug.Log("Ima Leave The Player :*");
             TriggeredByPlayer(false);
         }
     }
 
 
-    public void TakeDamage(int damage)
-    {
-        weaponCollider.enabled = false;
-        health -= damage;
-        enemyAnimator.SetTrigger("hit");
-        if(health <=0)
-        {
-            Die();
-        }
-    }
 
-    public void Die()
+
+    public override void Die()
     {
         enemyAnimator.SetBool("dead", true);
         followPlayer = false;
@@ -106,7 +98,7 @@ public class Enemy : MonoBehaviour, Attackable
 
             if (!attackMode)
             {
-                transform.position = Vector3.MoveTowards(transform.position, playerPos, movementSpeed * Time.fixedDeltaTime);
+                transform.position = Vector3.MoveTowards(transform.position, playerPos, speed * Time.fixedDeltaTime);
                 enemyAnimator.SetBool("walking", true);
             }
             
@@ -165,5 +157,22 @@ public class Enemy : MonoBehaviour, Attackable
             enemyAnimator.SetBool("walking", false);
             yield return new WaitForSeconds(5);
         }
+    }
+
+
+    protected override void PlayOnHitAnimation()
+    {
+        weaponCollider.enabled = false;
+        enemyAnimator.SetTrigger("hit");
+    }
+
+    public override void PlayHitSound()
+    {
+        throw new System.NotImplementedException();
+    }
+
+    protected override void PlayHitAirSound()
+    {
+        throw new System.NotImplementedException();
     }
 }

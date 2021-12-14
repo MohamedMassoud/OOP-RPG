@@ -2,10 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public abstract class Player : MonoBehaviour, Attackable
+public abstract class Player : Creature
 {
     [Header("Player Properties")]
-    [SerializeField] private float speed = 3f;
     [SerializeField] private int basicAttackDamage1 = 10;
     [SerializeField] private int basicAttackDamage2 = 20;
     public int currentBasicAttackDamage
@@ -26,7 +25,7 @@ public abstract class Player : MonoBehaviour, Attackable
             }
         }
     }
-    [SerializeField] private int health = 100;
+
 
     [Header("Animation Names")]
     [SerializeField] protected string runAnimationName;
@@ -42,18 +41,15 @@ public abstract class Player : MonoBehaviour, Attackable
     [SerializeField] public AudioClip attack2Sound;
     [SerializeField] protected AudioClip skillSound;
 
-    [Header("MISC")]
-    private AudioSource audioSource;
 
     private Animator playerAnimator;
     private float xInput;
     private float zInput;
     private Vector3 direction;
     private float angle = 90f;
-
+    private AudioSource audioSource;
 
     private SkinnedMeshRenderer skinnedMeshRenderer;
-    
 
 
     void Start()
@@ -62,14 +58,15 @@ public abstract class Player : MonoBehaviour, Attackable
         skinnedMeshRenderer = GetComponentInChildren<SkinnedMeshRenderer>();
         audioSource = GetComponent<AudioSource>();
         InitAnimationNames();
+        CreateHealthBar();
     }
 
     void Update()
     {
         TickMovement();
         TickRotation();
-        StartBasicAttackAnimationAndSound();
-        StartSkillAnimationAndSound();
+        StartBasicAttackAnimation();
+        StartSkillAnimation();
     }
 
     private void FixedUpdate()
@@ -114,7 +111,7 @@ public abstract class Player : MonoBehaviour, Attackable
         transform.rotation = Quaternion.Euler(0f, angle, 0f);
     }
 
-    protected virtual void StartBasicAttackAnimationAndSound()
+    protected virtual void StartBasicAttackAnimation()
     {
         if (IsAnimationPlaying(attack2AnimationName)) return;
         if (Input.GetMouseButtonDown(0))
@@ -130,7 +127,7 @@ public abstract class Player : MonoBehaviour, Attackable
         }
     }
 
-    protected virtual void StartSkillAnimationAndSound()
+    protected virtual void StartSkillAnimation()
     {
         if (Input.GetMouseButtonDown(1))
         {
@@ -149,21 +146,6 @@ public abstract class Player : MonoBehaviour, Attackable
 
     public abstract string GetPlayerClass();
 
-    public void TakeDamage(int damage)
-    {
-        health -= damage;
-        StartCoroutine(PlayHitAnimation());
-        if (health <= 0)
-        {
-            Die();
-
-        }
-
-    }
-    public void Die()
-    {
-        Debug.Log("Player Has Died");
-    }
 
     private void OnTriggerEnter(Collider other)
     {
@@ -171,7 +153,6 @@ public abstract class Player : MonoBehaviour, Attackable
         {
             if (other.gameObject.CompareTag("Melee_Weapon_Enemy"))
             {
-                Debug.Log("Hit By Enemy" + " " + other.gameObject.name);
                 Enemy enemy = other.transform.root.gameObject.GetComponent<Enemy>() as Enemy;
                 TakeDamage(enemy.currentBasicAttackDamage);
             }
@@ -180,13 +161,12 @@ public abstract class Player : MonoBehaviour, Attackable
 
     protected IEnumerator PlayHitAnimation()
     {
-        Debug.Log("HEREREERE");
         skinnedMeshRenderer.material.color = Color.red;
         yield return new WaitForSeconds(0.1f);
         skinnedMeshRenderer.material.color = Color.white;
     }
 
-    public void PlayHitAirSound()
+    protected override void PlayHitAirSound()
     {
         if (IsAnimationPlaying(attack1AnimationName))
         {
@@ -197,7 +177,7 @@ public abstract class Player : MonoBehaviour, Attackable
             audioSource.PlayOneShot(attack2AirSound);
         }
     }
-    public void PlayHitSound()
+    public override void PlayHitSound()
     {
         if (IsAnimationPlaying(attack1AnimationName))
         {
@@ -206,5 +186,16 @@ public abstract class Player : MonoBehaviour, Attackable
         {
             audioSource.PlayOneShot(attack2Sound);
         }
+    }
+
+    protected override void PlayOnHitAnimation()
+    {
+        StartCoroutine(PlayHitAnimation());
+    }
+
+    public override void Die()
+    {
+        playerAnimator.SetBool("Dead", true);
+        this.enabled = false;
     }
 }

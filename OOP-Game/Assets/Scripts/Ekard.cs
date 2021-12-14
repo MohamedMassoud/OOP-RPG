@@ -4,8 +4,13 @@ using UnityEngine;
 
 public class Ekard : Warrior
 {
+    [Header("Skill Properties")]
+    [SerializeField] private float lightShieldSkillDuration = 10f;
+
     [Header("MISC")]
     [SerializeField] private GameObject lightShield;
+
+    private bool lighShieldOn = false;
     protected override void InitAnimationNames()
     {
         runAnimationName = "Ekard_Run_01_h";
@@ -16,13 +21,22 @@ public class Ekard : Warrior
 
     public void TurnOnLighShield()
     {
+        lighShieldOn = true;
         lightShield.SetActive(true);
-        Invoke("TurnOffLightShield", 10f);
+        CancelInvoke("TurnOffLightShield");
+        Invoke("TurnOffLightShield", lightShieldSkillDuration);
     }
 
     private void TurnOffLightShield()
     {
+        lighShieldOn = false;
         lightShield.SetActive(false);
+    }
+
+    protected override void DecHealth(int damage)
+    {
+        if(!lighShieldOn) base.DecHealth(damage);
+
     }
 
 }

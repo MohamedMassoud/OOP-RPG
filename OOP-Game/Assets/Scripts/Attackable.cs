@@ -8,4 +8,5 @@ public interface Attackable
     void TakeDamage(int damage);
     void Die();
 
+    void CreateHealthBar();
 }

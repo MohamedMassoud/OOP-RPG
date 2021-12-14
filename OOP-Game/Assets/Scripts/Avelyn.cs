@@ -5,7 +5,11 @@ using UnityEngine;
 public class Avelyn : Warrior
 {
 
-    [SerializeField] private ParticleSystem lightSkill;
+    [SerializeField] private GameObject lightSpell;
+    [SerializeField] private int spellDamage = 50;
+    private Vector3 spellOffset = new Vector3(0, 0.2f, 1);
+
+
     protected override void InitAnimationNames()
     {
         runAnimationName = "Avelyn_Run_01_h";
@@ -16,7 +20,9 @@ public class Avelyn : Warrior
 
     public void PlayLightSkill()
     {
-        lightSkill.Play();
+        
+        LightSpell lightSpellScript = Instantiate(lightSpell, transform.position + spellOffset, transform.rotation).GetComponent<LightSpell>();
+        lightSpellScript.spellDamage = spellDamage;
     }
 
 }

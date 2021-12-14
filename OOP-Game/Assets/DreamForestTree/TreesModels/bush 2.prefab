@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 193424910209387496}
   - component: {fileID: 33722106651125774}
   - component: {fileID: 23852950485228832}
+  - component: {fileID: 2900451591590245218}
   m_Layer: 0
   m_Name: bush 2
   m_TagString: Untagged
@@ -91,6 +92,19 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!65 &2900451591590245218
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1639987689182440}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 4.7759714, y: 6.0235615, z: 4.721236}
+  m_Center: {x: 0.27412128, y: 2.9774027, z: 0.38487148}
 --- !u!21 &21177688673800626
 Material:
   serializedVersion: 6

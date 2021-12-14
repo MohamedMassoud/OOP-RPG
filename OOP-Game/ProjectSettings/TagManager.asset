@@ -8,6 +8,7 @@ TagManager:
   - Sword
   - Melee_Weapon_Enemy
   - Melee_Weapon_Player
+  - Spell_Player
   layers:
   - Default
   - TransparentFX
@@ -17,7 +18,7 @@ TagManager:
   - UI
   - TriggerArea
   - Weapon
-  - 
+  - Ekard
   - 
   - 
   - 
