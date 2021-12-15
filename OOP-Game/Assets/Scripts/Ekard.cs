@@ -9,6 +9,7 @@ public class Ekard : Warrior
 
     [Header("MISC")]
     [SerializeField] private GameObject lightShield;
+    [SerializeField] private AudioClip ekardAttackedSound;
 
     private bool lighShieldOn = false;
     protected override void InitAnimationNames()
@@ -37,6 +38,10 @@ public class Ekard : Warrior
     {
         if(!lighShieldOn) base.DecHealth(damage);
 
+    }
+    protected override void PlayAttackedSound()
+    {
+        audioSource.PlayOneShot(ekardAttackedSound);
     }
 
 }

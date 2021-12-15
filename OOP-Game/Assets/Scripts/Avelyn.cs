@@ -2,11 +2,12 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Avelyn : Warrior
+public class Avelyn : Rogue
 {
 
     [SerializeField] private GameObject lightSpell;
     [SerializeField] private int spellDamage = 50;
+    [SerializeField] private AudioClip avelynAttackedSound;
     private Vector3 spellOffset = new Vector3(0, 0.2f, 1);
 
 
@@ -20,9 +21,12 @@ public class Avelyn : Warrior
 
     public void PlayLightSkill()
     {
-        
         LightSpell lightSpellScript = Instantiate(lightSpell, transform.position + spellOffset, transform.rotation).GetComponent<LightSpell>();
         lightSpellScript.spellDamage = spellDamage;
     }
 
+    protected override void PlayAttackedSound()
+    {
+        audioSource.PlayOneShot(avelynAttackedSound);
+    }
 }

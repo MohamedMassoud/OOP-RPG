@@ -1,12 +1,15 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using TMPro;
+using UnityEngine.UI;
 
 public abstract class Player : Creature
 {
     [Header("Player Properties")]
     [SerializeField] private int basicAttackDamage1 = 10;
     [SerializeField] private int basicAttackDamage2 = 20;
+    [SerializeField] private float skillCoolDown;
     public int currentBasicAttackDamage
     {
         get
@@ -41,24 +44,37 @@ public abstract class Player : Creature
     [SerializeField] public AudioClip attack2Sound;
     [SerializeField] protected AudioClip skillSound;
 
+     private Slider coolDownSlider; 
 
     private Animator playerAnimator;
     private float xInput;
     private float zInput;
     private Vector3 direction;
-    private float angle = 90f;
-    private AudioSource audioSource;
-
+    private float angle = 0;
+    private bool canSkill = true;
+    private int coolDownPercent = 0;
     private SkinnedMeshRenderer skinnedMeshRenderer;
 
-
-    void Start()
+    private void Awake()
     {
         playerAnimator = GetComponent<Animator>();
         skinnedMeshRenderer = GetComponentInChildren<SkinnedMeshRenderer>();
         audioSource = GetComponent<AudioSource>();
-        InitAnimationNames();
+        coolDownSlider = GameObject.Find("Skill Icon Canvas").GetComponentInChildren<Slider>();
         CreateHealthBar();
+    }
+    void Start()
+    {
+        
+        InitAnimationNames();
+        LoadBaseStats();
+        ViewPlayerName();
+    }
+
+    protected abstract void LoadBaseStats();
+    private void ViewPlayerName()
+    {
+        healthBarScript.transform.root.GetChild(1).gameObject.GetComponent<TextMeshProUGUI>().text = MainManager.playerName;
     }
 
     void Update()
@@ -129,11 +145,19 @@ public abstract class Player : Creature
 
     protected virtual void StartSkillAnimation()
     {
-        if (Input.GetMouseButtonDown(1))
+        if (Input.GetMouseButtonDown(1) && canSkill)
         {
             playerAnimator.SetTrigger("Skill");
             audioSource.PlayOneShot(skillSound);
+            canSkill = false;
+            coolDownPercent = 100;
+            StartCoroutine(SkillCoolDownRoutine());
         }
+    }
+
+    private void ActivateSkill()
+    {
+        canSkill = true;
     }
 
 
@@ -190,12 +214,29 @@ public abstract class Player : Creature
 
     protected override void PlayOnHitAnimation()
     {
+
         StartCoroutine(PlayHitAnimation());
+        PlayAttackedSound();
     }
+
+    protected abstract void PlayAttackedSound();
+
 
     public override void Die()
     {
         playerAnimator.SetBool("Dead", true);
         this.enabled = false;
+        LevelManager.GameOver();
+    }
+
+    IEnumerator SkillCoolDownRoutine()
+    {
+        while(coolDownPercent > 0)
+        {
+            yield return new WaitForSeconds(skillCoolDown/100);
+            coolDownPercent--;
+            coolDownSlider.value = coolDownPercent;
+        }
+        ActivateSkill();
     }
 }

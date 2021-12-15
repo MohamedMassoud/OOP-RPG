@@ -3,13 +3,21 @@ using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 public class LevelManager : MonoBehaviour
 {
     [SerializeField] private Creature levelTrollScript;
     [SerializeField] private Creature levelWolfScript;
     [SerializeField] private GameObject trollDoor;
     [SerializeField] private GameObject wolfDoor;
-    [SerializeField] private GameObject GameOverCanvas;
+    private static GameObject gameOverCanvas;
+    private static GameObject gameEndCanvas;
+    [SerializeField] private GameObject[] playerPrefabs;
+    [SerializeField] private Sprite[] skillIcons;
+    [SerializeField] private Image currentIcon;
+    [SerializeField] private Transform playerStartTransfrom;
+    
+
     private Player playerScript;
     
 
@@ -19,14 +27,35 @@ public class LevelManager : MonoBehaviour
     private float doorUnlockSpeed = 3f;
     private float bottomBoundary = -10f;
 
-
-    // Start is called before the first frame update
+    private void Awake()
+    {
+        
+        StartGame();
+        
+    }
     void Start()
     {
         playerScript = GameObject.FindObjectOfType<Player>();
+        gameOverCanvas = GameObject.Find("Game Over").transform.GetChild(0).gameObject;
+        gameEndCanvas = GameObject.Find("Game End").transform.GetChild(0).gameObject;
     }
 
-    // Update is called once per frame
+    private void StartGame()
+    {
+        LoadPlayer();
+        LoadIcon();
+        
+    }
+
+    private void LoadIcon()
+    {
+        currentIcon.sprite = skillIcons[MainManager.playerIndex];
+    }
+
+    private void LoadPlayer()
+    {
+        Instantiate(playerPrefabs[MainManager.playerIndex], playerStartTransfrom.position, playerStartTransfrom.rotation);
+    }
     void FixedUpdate()
     {
         if (checkTroll && !levelTrollScript.isAlive)
@@ -50,10 +79,6 @@ public class LevelManager : MonoBehaviour
             Congrats();
         }
 
-        if (!playerScript.isAlive)
-        {
-            GameOver();
-        }
     }
 
     private bool UnlockDoor(GameObject door)
@@ -71,13 +96,16 @@ public class LevelManager : MonoBehaviour
     
     private void Congrats()
     {
-
+        playerScript.enabled = false;
+        gameEndCanvas.SetActive(true);
     }
 
-    private void GameOver()
+    public static void GameOver()
     {
-        GameOverCanvas.SetActive(true);
+        gameOverCanvas.SetActive(true);
     }
+
+
 
     public void GoToSelectionScreen()
     {

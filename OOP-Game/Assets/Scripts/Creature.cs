@@ -14,6 +14,8 @@ public abstract class Creature : MonoBehaviour, Attackable
     [Header("MISC")]
     [SerializeField] private GameObject headNub;
     [SerializeField] private GameObject healthBarPrefab;
+    [SerializeField] private AudioClip[] footstepClips;
+    protected AudioSource audioSource;
 
     protected HealthBar healthBarScript;
     public bool isAlive = true;
@@ -31,7 +33,9 @@ public abstract class Creature : MonoBehaviour, Attackable
     
     public void PlayRandomFootSteps()
     {
-
+        audioSource = GetComponent<AudioSource>();
+        int index = Random.Range(0, footstepClips.Length);
+        audioSource.PlayOneShot(footstepClips[index]);
     }
 
     public void TakeDamage(int damage)

@@ -10,6 +10,7 @@ public class Enemy : Creature
     [Header("MISC")]
     [SerializeField] protected BoxCollider weaponCollider;
     [SerializeField] private float attackRange = 1f;
+    [SerializeField] private AudioClip hitAirSound;
     
 
     private Player playerScript;
@@ -143,6 +144,7 @@ public class Enemy : Creature
     {
         enemyAnimator.SetInteger("battle", 1);
         enemyAnimator.SetTrigger("attack");
+        PlayHitAirSound();
 
     }
 
@@ -168,11 +170,11 @@ public class Enemy : Creature
 
     public override void PlayHitSound()
     {
-        throw new System.NotImplementedException();
+        
     }
 
     protected override void PlayHitAirSound()
     {
-        throw new System.NotImplementedException();
+        audioSource.PlayOneShot(hitAirSound);
     }
 }

@@ -6,6 +6,8 @@ public class Spell : MonoBehaviour
 {
     [SerializeField] private float spellSpeed = 20f;
     [SerializeField] private float spellRange = 10f;
+
+
     private int internalSpellDamage;
     private Vector3 startPosition;
     public int spellDamage

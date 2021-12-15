@@ -10,4 +10,18 @@ public abstract class Warrior : MeleePlayer
         return "Warrior";
     }
 
+
+    protected override void LoadBaseStats()
+    {
+        IncreaseMaxHealth();
+
+    }
+
+    private void IncreaseMaxHealth()
+    {
+        maxHealth *= 2;
+        health = maxHealth;
+        healthBarScript.SetMaxHealth(maxHealth);
+        healthBarScript.SetHealth(health);
+    }
 }

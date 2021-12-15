@@ -9,6 +9,7 @@ TagManager:
   - Melee_Weapon_Enemy
   - Melee_Weapon_Player
   - Spell_Player
+  - Game End
   layers:
   - Default
   - TransparentFX
