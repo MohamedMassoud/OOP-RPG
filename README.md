@@ -6,3 +6,27 @@ The basic system is created to make use of OOP to the fullest to optimize the am
 **UML Class Diagram**
 
 ![](uml.png)
+
+**Menu Screenshots**
+
+![](ekard.png)
+
+![](avelyn.png)
+
+**In Game Screenshots**
+
+![](ekardInGame.png)
+
+![](avelynInGame.png)
+
+**Inheritance**
+
+**Polymorphism**
+
+**Abstraction**
+
+**Encapsulation**
+
+**What I have done**
+
+**Credits**
