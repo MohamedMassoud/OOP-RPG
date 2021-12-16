@@ -11,11 +11,14 @@ public class MenuUIManager : MonoBehaviour
     private static string playerName;
     private static int playerIndex;
 
+    [Header("Characters MISC")]
     [SerializeField] private GameObject[] playerPrefabs;
     [SerializeField] private Image[] playerIcons;
     [SerializeField] private TMP_InputField playerNameText;
     [SerializeField] private Transform playerPreviewTransform;
     [SerializeField] private TextMeshProUGUI[] playersStats;
+
+    [Header("Sounds")]
     [SerializeField] private AudioClip selectSound;
     [SerializeField] private AudioClip startFailedSound;
     [SerializeField] private AudioClip startSuccessSound;

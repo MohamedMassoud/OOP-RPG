@@ -4,10 +4,10 @@ using UnityEngine;
 
 public class Ekard : Warrior
 {
-    [Header("Skill Properties")]
+    [Header("Ekard Properties")]
     [SerializeField] private float lightShieldSkillDuration = 10f;
 
-    [Header("MISC")]
+    [Header("Ekard MISC")]
     [SerializeField] private GameObject lightShield;
     [SerializeField] private AudioClip ekardAttackedSound;
 

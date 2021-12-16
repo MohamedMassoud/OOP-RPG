@@ -4,6 +4,7 @@ using UnityEngine;
 
 public abstract class MeleePlayer : Player, MeleeAttacker
 {
+    [Header("Melee Player MISC")]
     [SerializeField] private BoxCollider meleeWeaponCollider;
 
     public void EnableAttackCollider()      //Called by the animation

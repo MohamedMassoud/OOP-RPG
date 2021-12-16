@@ -4,10 +4,12 @@ using UnityEngine;
 
 public class Avelyn : Rogue
 {
-
+    [Header("Avelyn Properties")]
     [SerializeField] private GameObject lightSpell;
     [SerializeField] private int spellDamage = 50;
+    [Header("Avelyn MISC")]
     [SerializeField] private AudioClip avelynAttackedSound;
+
     private Vector3 spellOffset = new Vector3(0, 0.2f, 1);
 
 

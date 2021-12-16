@@ -6,16 +6,22 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 public class LevelManager : MonoBehaviour
 {
+    [Header("Mobs Includes")]
     [SerializeField] private Creature levelTrollScript;
     [SerializeField] private Creature levelWolfScript;
     [SerializeField] private GameObject trollDoor;
     [SerializeField] private GameObject wolfDoor;
+
+    [Header("Characters UI")]
+    [SerializeField] private GameObject[] playerPrefabs;
+    [SerializeField] private Transform playerStartTransfrom;
+
+    [Header("UI MISC")]
     private static GameObject gameOverCanvas;
     private static GameObject gameEndCanvas;
-    [SerializeField] private GameObject[] playerPrefabs;
     [SerializeField] private Sprite[] skillIcons;
     [SerializeField] private Image currentIcon;
-    [SerializeField] private Transform playerStartTransfrom;
+    
     
 
     private Player playerScript;

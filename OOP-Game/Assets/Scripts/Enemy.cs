@@ -7,7 +7,7 @@ public class Enemy : Creature
     [Header("Enemy Properties")]
     public int currentBasicAttackDamage = 10;
 
-    [Header("MISC")]
+    [Header("Enemy MISC")]
     [SerializeField] protected BoxCollider weaponCollider;
     [SerializeField] private float attackRange = 1f;
     [SerializeField] private AudioClip hitAirSound;

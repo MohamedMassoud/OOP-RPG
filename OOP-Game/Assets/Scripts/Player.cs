@@ -10,7 +10,7 @@ public abstract class Player : Creature
     [SerializeField] private int basicAttackDamage1 = 10;
     [SerializeField] private int basicAttackDamage2 = 20;
     [SerializeField] private float skillCoolDown;
-    public int currentBasicAttackDamage
+    [HideInInspector] public int currentBasicAttackDamage
     {
         get
         {
@@ -30,21 +30,19 @@ public abstract class Player : Creature
     }
 
 
-    [Header("Animation Names")]
-    [SerializeField] protected string runAnimationName;
-    [SerializeField] protected string attack1AnimationName;
-    [SerializeField] protected string attack2AnimationName;
-    [SerializeField] protected string skillAnimationName;
+    protected string runAnimationName;
+    protected string attack1AnimationName;
+    protected string attack2AnimationName;
+    protected string skillAnimationName;
 
-    [Header("Sounds")]
-
+    [Header("Player Sounds", order = 1)]
     [SerializeField] protected AudioClip attack1AirSound;
     [SerializeField] protected AudioClip attack2AirSound;
-    [SerializeField] public AudioClip attack1Sound;
-    [SerializeField] public AudioClip attack2Sound;
+    [SerializeField] protected AudioClip attack1Sound;
+    [SerializeField] protected AudioClip attack2Sound;
     [SerializeField] protected AudioClip skillSound;
 
-     private Slider coolDownSlider; 
+    private Slider coolDownSlider; 
 
     private Animator playerAnimator;
     private float xInput;

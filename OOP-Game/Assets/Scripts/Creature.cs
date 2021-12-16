@@ -6,19 +6,19 @@ public abstract class Creature : MonoBehaviour, Attackable
 {
 
 
-    [Header("Player Properties")]
+    [Header("Creature Properties")]
     [SerializeField] protected float speed;
     [SerializeField] protected int maxHealth;
     [SerializeField] protected int health;
 
-    [Header("MISC")]
+    [Header("Creature MISC")]
     [SerializeField] private GameObject headNub;
     [SerializeField] private GameObject healthBarPrefab;
     [SerializeField] private AudioClip[] footstepClips;
-    protected AudioSource audioSource;
 
+    protected AudioSource audioSource;
     protected HealthBar healthBarScript;
-    public bool isAlive = true;
+    [HideInInspector] public bool isAlive = true;
 
 
 

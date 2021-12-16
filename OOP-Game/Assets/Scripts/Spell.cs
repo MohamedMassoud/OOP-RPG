@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class Spell : MonoBehaviour
 {
+    [Header("Spell Properties")]
     [SerializeField] private float spellSpeed = 20f;
     [SerializeField] private float spellRange = 10f;
 
